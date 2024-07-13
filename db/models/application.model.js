@@ -24,7 +24,7 @@ export const applicationSchema = new Schema({
         type: String,
         required: true
     } // URL Cloudinary
-});
+},{ timestamps: true });
 
 export const Application = mongoose.model('Application', applicationSchema);
 

@@ -170,7 +170,6 @@ export const applyjob = async (req,res,next)=>{
     
     // Check if file is uploaded
     const file = req.file;
-    console.log(req.file);
     if (!file) {
       return next(new AppError("No file uploaded", 400));
     }

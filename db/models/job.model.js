@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { jobLocations, seniorityLevels, workingTimes } from "../../src/utils/constant.js";
+import { Application } from "./application.model.js";
 
 
 const jobSchema = new mongoose.Schema({
@@ -43,6 +44,24 @@ const jobSchema = new mongoose.Schema({
         required: true
     }
 
-})
+},{
+    timestamps: true})
+
+
+
+
+jobSchema.pre('findOneAndDelete', async function(next)
+ {
+    const job = this; // Access the job being deleted
+    const jobId = job._conditions._id; // Extract job id from conditions
+    try {
+        // Delete applications related to this job
+        await Application.deleteMany({ jobId });
+        next(); // Move to the next middleware
+    } catch (err) {
+        next(err); // Pass any error to the next middleware
+    }
+});
+
 
 export const Job = mongoose.model('Job',jobSchema)

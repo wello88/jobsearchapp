@@ -1,11 +1,14 @@
 import { Application } from "../../../db/models/application.model.js"
 import { Company } from "../../../db/models/company.model.js"
 import { Job } from "../../../db/models/job.model.js"
-import { User } from "../../../db/models/user.model.js"
 import { AppError } from "../../utils/apperror.js"
 import { sendEmail } from "../../utils/sendEmail.js"
 import jwt from "jsonwebtoken"
-
+import fs from 'fs';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import excel from 'exceljs';
+// create company as hr
 export const add_company = async (req, res, next) => {
 
     const { companyname, description, industry, address, num_of_employees, companyemail, company_HR } = req.body
@@ -15,7 +18,7 @@ export const add_company = async (req, res, next) => {
 
         return next(new AppError('company already exist', 401))
     }
-
+    //prepare data
     const add = new Company({
         companyname,
         description,
@@ -31,12 +34,13 @@ export const add_company = async (req, res, next) => {
         return next(new AppError('company not saved', 401))
     }
 
-
+    //genrate token
     const token = jwt.sign({ companyemail }, process.env.JWT_SECRET, { expiresIn: '1h' })
     sendEmail(companyemail, token)
-    return res.json({ message: 'company added,please check your email to verify', success: true })
+    return res.json({ message: 'company added ,please check your email to verify', success: true })
 }
 
+//update company
 
 export const updateCompany = async (req, res, next) => {
     const { id } = req.user
@@ -68,18 +72,31 @@ export const updateCompany = async (req, res, next) => {
 
 
 export const deletecompany = async (req, res, next) => {
-    const { userid } = req.user;
-
+    const  userid  = req.user._id
+    
     // Check if the company exists by companyHR
     const company = await Company.findOne({ company_HR: userid });
     if (!company) {
         return next(new AppError('Company does not exist', 404));
     }
+        // Find all jobs associated with the company
+        const jobs = await Job.find({ companyid: company._id });
+
+        // Extract job IDs
+        const jobIds = jobs.map(job => job._id);
+
+        // Delete applications related to the jobs
+        await Application.deleteMany({ jobId: { $in: jobIds } });   
+
+        // Delete the jobs themselves
+        await Job.deleteMany({ companyid: company._id });
+
+        // Delete the company itself
+        const deletedCompany = await Company.findOneAndDelete({ _id: company._id });
 
     // Prepare data and update
-    const deletecompany = await Company.findOneAndDelete()
 
-    return res.status(200).json({ message: 'Company deleted successfully', success: true, data: deletecompany });
+    return res.status(200).json({ message: 'Company deleted successfully', success: true, data: deletedCompany });
 };
 
 
@@ -138,3 +155,77 @@ export const getapplications = async (req, res, next) => {
 
 
 }
+
+
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+export const getApplicationsByCompanyAndDate = async (req, res, next) => {
+    const { companyid } = req.params;
+    const { date } = req.query;
+
+    // Construct date range for the query
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Fetch applications for the company on the specified date
+    const applications = await Application.find({
+        jobId: { $in: await Job.find({ companyid }, '_id') },
+        createdAt: { $gte: startOfDay, $lte: endOfDay }
+    }).populate('userid', 'username email'); // Populate user details
+
+    if (!applications || applications.length === 0) {
+        return res.status(404).json({ message: 'No applications found for the specified date', success: false });
+    }
+
+    // Create Excel workbook
+    const workbook = new excel.Workbook();
+    const worksheet = workbook.addWorksheet('Applications');
+
+    // Define columns
+    worksheet.columns = [
+        { header: 'Email', key: 'email', width: 30 },
+        { header: 'Tech Skills', key: 'techSkills', width: 40 },
+        { header: 'Soft Skills', key: 'softSkills', width: 40 },
+        { header: 'Resume URL', key: 'resumeURL', width: 50 },
+        { header: 'Submission Date', key: 'submissionDate', width: 20 }
+    ];
+
+    // Populate rows with application data
+    applications.forEach(application => {
+        worksheet.addRow({
+            email: application.userid.email,
+            jobTitle: application.jobId.jobTitle,
+            techSkills: application.userTechSkills.join(', '),
+            softSkills: application.userSoftSkills.join(', '),
+            resumeURL: application.userResume,
+            createdAt: application.createdAt.toLocaleString()
+        });
+    });
+
+    // Generate Excel file
+    const fileName = `applications_${companyid}_${date.replace(/-/g, '_')}.xlsx`;
+    const filePath = path.join(__dirname, '..', '..', 'excelsheets', fileName);
+
+    try {
+        // Ensure the excelsheets directory exists
+        const excelsheetsDir = path.join(__dirname, '..', '..', 'excelsheets');
+        if (!fs.existsSync(excelsheetsDir)) {
+            fs.mkdirSync(excelsheetsDir, { recursive: true });
+        }
+
+        // Write the Excel file
+        await workbook.xlsx.writeFile(filePath);
+
+        // Send success response
+        res.status(200).json({ message: 'Excel file generated successfully', success: true, filePath });
+    } catch (error) {
+        console.error('Error generating Excel:', error);
+        return res.status(500).json({ message: 'Failed to generate Excel file', success: false });
+    }
+
+};
