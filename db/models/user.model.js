@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { roles } from "../../src/utils/constant.js";
-
+//user schema
 const userschema = new mongoose.Schema({
     firstname: String,
     lastname: String,
@@ -28,5 +28,8 @@ const userschema = new mongoose.Schema({
     resetotp: String,
     otpexpiry: Date,
 })
+
+//user model
+
 
 export const User = mongoose.model('User',userschema)

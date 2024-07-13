@@ -150,7 +150,7 @@ export const jobfilter = async (req, res, next) => {
 
 
 
-
+//create aoopplication for a job
 
 export const applyjob = async (req,res,next)=>{
     // distruct userid
@@ -175,7 +175,7 @@ export const applyjob = async (req,res,next)=>{
       return next(new AppError("No file uploaded", 400));
     }
 
-  
+    //prepare data
 
     const apply = await Application.create({
         jobId,

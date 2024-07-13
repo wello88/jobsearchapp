@@ -40,7 +40,7 @@ export const add_company = async (req, res, next) => {
     return res.json({ message: 'company added ,please check your email to verify', success: true })
 }
 
- //update company
+//update company
 
 export const updateCompany = async (req, res, next) => {
     const { id } = req.user
@@ -70,7 +70,7 @@ export const updateCompany = async (req, res, next) => {
 };
 
 
-
+//deleting company and any related data(jobs & applications)
 export const deletecompany = async (req, res, next) => {
     const userid = req.user._id
 

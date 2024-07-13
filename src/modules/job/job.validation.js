@@ -1,5 +1,5 @@
 import joi from "joi";
-
+//job validation
 export const jobval = joi.object({
     jobtitle: joi.string().required(),
     jobLocation: joi.string().required(),
@@ -14,8 +14,7 @@ export const jobval = joi.object({
 
 
 
-import joi from "joi";
-
+//update data validation
 export const updatejobval = joi.object({
     jobtitle: joi.string(),
     jobLocation: joi.string(),

@@ -2,6 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import { jobLocations, seniorityLevels, workingTimes } from "../../src/utils/constant.js";
 import { Application } from "./application.model.js";
 
+// job schema
 
 const jobSchema = new mongoose.Schema({
 
@@ -63,5 +64,5 @@ jobSchema.pre('findOneAndDelete', async function(next)
     }
 });
 
-
+//job model
 export const Job = mongoose.model('Job',jobSchema)

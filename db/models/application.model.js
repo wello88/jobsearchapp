@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-
+//applicationschema
 
 
 export const applicationSchema = new Schema({
@@ -25,6 +25,6 @@ export const applicationSchema = new Schema({
         required: true
     } // URL Cloudinary
 },{ timestamps: true });
-
+//model
 export const Application = mongoose.model('Application', applicationSchema);
 

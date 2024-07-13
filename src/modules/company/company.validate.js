@@ -1,6 +1,6 @@
 import joi from 'joi'
 
-
+//calidate company data
 export const companyval = joi.object({
     companyname: joi.string().required(),
     description: joi.string().required(),
@@ -12,7 +12,7 @@ export const companyval = joi.object({
 })
 
 
-
+//update data validation
 
 export const updatecompanyval = joi.object({
     companyname: joi.string(),

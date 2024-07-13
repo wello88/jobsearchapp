@@ -1,8 +1,8 @@
 // schema
 import mongoose, { Schema } from "mongoose";
 import { employeeRanges } from "../../src/utils/constant.js";
-import { Job } from "./job.model.js";
-import { Application } from "./application.model.js";
+
+//company schema
 
 const companySchema = new mongoose.Schema({
     companyname:{
@@ -37,5 +37,5 @@ const companySchema = new mongoose.Schema({
 },{timestamps: true})
 
 
-
+//company model
 export const Company = mongoose.model('Company',companySchema);
