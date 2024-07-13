@@ -12,7 +12,7 @@ export const auth = (req, res, next) => {
           return next(new AppError("Unauthorized", 401));
       }
 
-      jwt.verify(token, 'secret', (err, decode) => {
+      jwt.verify(token, process.env.JWT_SECRET, (err, decode) => {
           if (err) {
 
               return next(new AppError('Unauthorized', 401));
@@ -45,7 +45,7 @@ export const protect = async (req, res, next) => {
     }
   
     try {
-      const decoded = jwt.verify(token, 'secret');
+      const decoded = jwt.verify(token,process.env.JWT_SECRET);
 
       const userid = decoded.userid;
   

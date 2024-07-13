@@ -32,9 +32,9 @@ export const add_company = async (req, res, next) => {
     }
 
 
-    const token = jwt.sign({ companyemail }, 'secret', { expiresIn: '1h' })
+    const token = jwt.sign({ companyemail }, process.env.JWT_SECRET, { expiresIn: '1h' })
     sendEmail(companyemail, token)
-    return res.json({ message: 'company added', success: true })
+    return res.json({ message: 'company added,please check your email to verify', success: true })
 }
 
 

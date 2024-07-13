@@ -33,7 +33,7 @@ export const signup =
             isVerified: false
         });
         await user.save()
-        const token = jwt.sign({ email }, 'secret', { expiresIn: '1h' })
+        const token = jwt.sign({ email },process.env.JWT_SECRET, { expiresIn: '1h' })
         sendEmail(email, token)
         return res.json({ message: "please check your email", success: true })
     }
@@ -68,7 +68,7 @@ export const signin = async (req, res, next) => {
           if (!isVerified) {
             return next(new AppError('Please verify your email', 400));
           }
-        const token = jwt.sign({ email: user.email, userid: user._id,role:user.role }, 'secret', { expiresIn: '1h' })
+        const token = jwt.sign({ email: user.email, userid: user._id,role:user.role }, process.env.JWT_SECRET, { expiresIn: '1h' })
         user.status = 'online';
         await user.save();
 

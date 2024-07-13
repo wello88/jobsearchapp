@@ -10,10 +10,10 @@ import { asyncHandler } from '../middleware/asynchandler.js';
 // function send email
 export const sendEmail = async(email,token)=>{ 
     const transporter = nodemailer.createTransport({
-    service:"gmail",
+    service:process.env.EMAIL_SERVICE,
     auth: {
-      user: "abdow8896@gmail.com",
-      pass: "bcgvxojiotrgyfwa",
+      user:process.env.EMAIL_USER,
+      pass:process.env.EMAIL_PASS
     },
   });
 
