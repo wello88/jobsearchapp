@@ -10,7 +10,7 @@ export const userRouter = Router();
 asyncHandler(userRouter)
 
 userRouter.put('/update', protect, validate(updateval),updateuser)
-userRouter.delete('/delete', protect, deleteuser)
+userRouter.delete('/deleteuser', protect, deleteuser)
 userRouter.get('/getuser', protect, getuser)
 userRouter.get('/getprofile/:userid', getprofile)
 userRouter.put('/updatepassword', protect, validate(updatePasswordval),updatepassword)

@@ -40,7 +40,7 @@ export const add_company = async (req, res, next) => {
     return res.json({ message: 'company added ,please check your email to verify', success: true })
 }
 
-//update company
+ //update company
 
 export const updateCompany = async (req, res, next) => {
     const { id } = req.user
@@ -72,34 +72,35 @@ export const updateCompany = async (req, res, next) => {
 
 
 export const deletecompany = async (req, res, next) => {
-    const  userid  = req.user._id
-    
+    const userid = req.user._id
+
     // Check if the company exists by companyHR
     const company = await Company.findOne({ company_HR: userid });
     if (!company) {
         return next(new AppError('Company does not exist', 404));
     }
-        // Find all jobs associated with the company
-        const jobs = await Job.find({ companyid: company._id });
+    // Find all jobs associated with the company
+    const jobs = await Job.find({ companyid: company._id });
 
-        // Extract job IDs
-        const jobIds = jobs.map(job => job._id);
+    // Extract job IDs
+    const jobIds = jobs.map(job => job._id);
 
-        // Delete applications related to the jobs
-        await Application.deleteMany({ jobId: { $in: jobIds } });   
+    // Delete applications related to the jobs
+    await Application.deleteMany({ jobId: { $in: jobIds } });
 
-        // Delete the jobs themselves
-        await Job.deleteMany({ companyid: company._id });
+    // Delete the jobs 
+    await Job.deleteMany({ companyid: company._id });
 
-        // Delete the company itself
-        const deletedCompany = await Company.findOneAndDelete({ _id: company._id });
+    // Delete the company 
+    const deletedCompany = await Company.findOneAndDelete({ _id: company._id });
 
-    // Prepare data and update
+    // update successfully
 
     return res.status(200).json({ message: 'Company deleted successfully', success: true, data: deletedCompany });
 };
 
 
+// Get a specific company 
 
 export const getcompany = async (req, res, next) => {
     const { companyid } = req.params
@@ -117,6 +118,7 @@ export const getcompany = async (req, res, next) => {
 }
 
 
+// Search for companies by name
 
 export const searchcompany = async (req, res, next) => {
     const { name } = req.query
@@ -130,7 +132,7 @@ export const searchcompany = async (req, res, next) => {
     return res.status(200).json({ message: 'Companies fetched successfully', success: true, data: companies });
 };
 
-
+//get applications for a specific job
 
 export const getapplications = async (req, res, next) => {
 
@@ -148,16 +150,16 @@ export const getapplications = async (req, res, next) => {
     }
 
     const applications = await Application.find({ jobId }).populate('userid', '-password');
-    if(applications.length === 0){
+    if (applications.length === 0) {
         return next(new AppError('No applications found', 404));
     }
-    return res.status(200).json({success:true,data:applications})
+    return res.status(200).json({ success: true, data: applications })
 
 
 }
 
 
-
+/////////////////// bonus task ///////////////
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -192,7 +194,7 @@ export const getApplicationsByCompanyAndDate = async (req, res, next) => {
         { header: 'Tech Skills', key: 'techSkills', width: 40 },
         { header: 'Soft Skills', key: 'softSkills', width: 40 },
         { header: 'Resume URL', key: 'resumeURL', width: 50 },
-        { header: 'Submission Date', key: 'submissionDate', width: 20 }
+        { header: 'createdAt', key: 'createdAt', width: 20 }
     ];
 
     // Populate rows with application data

@@ -3,15 +3,13 @@ import { Company } from "../../../db/models/company.model.js"
 import { Job } from "../../../db/models/job.model.js"
 import { User } from "../../../db/models/user.model.js";
 import { AppError } from "../../utils/apperror.js"
-import {cloudinary} from '../../utils/cloud.js';
-import multer from 'multer';
+
 
 
 //add job api
 export const add_job = async (req, res, next) => {
     //distruct userid
     const userid = req.user._id; 
-
     //check if user is company_HR
     
     const company = await Company.findOne({ company_HR: userid });
@@ -63,6 +61,9 @@ export const update_job = async (req, res, next) => {
 }
 
 
+
+//delete job api
+
 export const deleteJob = async (req, res, next) => {
     const userid = req.user._id;
     const { jobId } = req.params;
@@ -107,7 +108,7 @@ export const getJobsByCompany = async (req, res, next) => {
 
 
 
-//get all gobs by filter 
+//get all gobs by filter using query   
 
 export const jobfilter = async (req, res, next) => {
 
